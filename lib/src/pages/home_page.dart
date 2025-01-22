@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:lottie/lottie.dart';
 import 'package:location_tracker/src/helpers/klog.dart';
+import 'package:lottie/lottie.dart';
+
+import '../base/base.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,8 +12,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Position? currentPosition;
-
   @override
   void initState() {
     super.initState();
@@ -23,26 +20,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<void> getCurrentLocation() async {
-    currentPosition = await Geolocator.getCurrentPosition(
-      // desiredAccuracy: LocationAccuracy.high,
-      locationSettings: LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 0,
-      ),
-    );
-    klog('Current Position: $currentPosition');
-  }
-
-  void getLastKnownPosition() async {
-    final position = await Geolocator.getLastKnownPosition();
-    if (position != null) {
-      klog(position);
-    } else {
-      klog(position);
-    }
   }
 
   @override
@@ -62,7 +39,15 @@ class _HomePageState extends State<HomePage> {
                 Text('Scanned QR: '),
                 ElevatedButton(
                   onPressed: () async {
-                    await getCurrentLocation();
+                    final kk = await Base.locationTrackerController
+                        .checkBackgroundMode();
+
+                    if (kk) {
+                      logSuccess('Background mode is enabled');
+                    } else {
+                      logError('Background mode is disabled');
+                      Base.locationTrackerController.initBackgroundMode();
+                    }
                   },
                   child: Text('Get Location'),
                 ),

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../controllers/auth_controller.dart';
 import '../controllers/config_controller.dart';
+import '../controllers/location_tracker_controller.dart';
 import '../controllers/location_trece_controller.dart';
 import '../controllers/navigation_controller.dart';
 import '../services/background_service.dart';
@@ -12,6 +13,7 @@ class BaseBinding extends Bindings {
   void dependencies() {
     Get.lazyPut(() => ConfigController());
     Get.lazyPut(() => LocationTreceController());
+    Get.lazyPut(() => LocationTrackerController());
     Get.lazyPut(() => AuthController());
     Get.lazyPut(() => NavigationController());
     // Get.lazyPut(() => UserController());

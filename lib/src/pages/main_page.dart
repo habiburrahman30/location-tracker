@@ -6,15 +6,11 @@ import '../base/base.dart';
 import '../components/bottom_navigation_component.dart';
 import '../components/app_bar_component.dart';
 
-class MainPage extends StatefulWidget {
-  @override
-  _MainPageState createState() => _MainPageState();
-}
+class MainPage extends StatelessWidget {
+  const MainPage({super.key});
 
-class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    Base.locationTreceController;
     return Scaffold(
       key: Base.navigationController.globalKey,
       appBar: AppBarComponent(),

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:location_tracker/src/base/base.dart';
 import 'package:location_tracker/src/helpers/route.dart';
 import 'package:location_tracker/src/pages/main_page.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../helpers/klog.dart';
+import '/src/base/base.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,26 +17,15 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     initPermition();
+
     super.initState();
 
     // initDB();
   }
 
-  // initDB() async {
-  //   final settingsModel = SettingsModel(
-  //     id: 'currentSettings',
-  //     email: '',
-  //     password: '',
-  //     isFirstTime: false,
-  //     loggedIn: false,
-  //     isAdmin: false,
-  //   );
-  //   await Base.isarService.put<SettingsModel>(settingsModel);
-
-  //   // final eee = await Base.isarService.get<SettingsModel>('currentSettings');
-  // }
   initPermition() async {
-    await Base.permissionHandlerService.requestLocationPermission();
+    await Base.locationTrackerController.checkService();
+    await Base.permissionHandlerService.requestLocationAlwaysPermission();
   }
 
   @override
@@ -72,13 +62,12 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 90),
               child: ElevatedButton(
                 onPressed: () async {
-                  if (await Base.permissionHandlerService
-                      .isPermissionGranted(Permission.location)) {
-                    await Base.locationTreceController.getAddressFromLatLng();
-                    offAll(MainPage());
-                  } else {
-                    await Base.permissionHandlerService
-                        .requestLocationPermission();
+                  final status = await Base.locationTrackerController
+                      .initServiceAndLocationPermission();
+
+                  if (status) {
+                    logSuccess('Service and permission granted');
+                    // offAll(MainPage());
                   }
                 },
                 style: ElevatedButton.styleFrom(

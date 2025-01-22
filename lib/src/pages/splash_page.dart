@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location_tracker/src/pages/login_page.dart';
-import '../base/base.dart';
+
 import '../helpers/hex_color.dart';
 import '../helpers/route.dart';
 
@@ -17,7 +17,7 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     Future.delayed(Duration(seconds: 2), () {
       offAll(LoginPage());
-      Base.locationTreceController;
+      // Base.locationTreceController;
     });
 
     super.initState();

@@ -32,6 +32,11 @@ class PermissionHandlerService {
     return await requestPermission(Permission.location);
   }
 
+  /// Request location always permission
+  Future<bool> requestLocationAlwaysPermission() async {
+    return await requestPermission(Permission.locationAlways);
+  }
+
   /// Request SMS permission
   Future<bool> requestSmsPermission() async {
     return await requestPermission(Permission.sms);
