@@ -137,7 +137,8 @@ class LocationTrackerController extends GetxController {
   }
 
   listenOnLocationChanged() {
-    location.onLocationChanged.listen((LocationData currentLocation) {
+    locationSubscription =
+        location.onLocationChanged.listen((LocationData currentLocation) {
       logSuccess(currentLocation);
       isListening.value = true;
       if (currentLocation.latitude != null &&
