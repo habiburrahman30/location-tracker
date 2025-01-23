@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:location_tracker/src/helpers/route.dart';
-
-import '../components/permission_required_dialog_component.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PermissionHandlerService {
   /// Request permission for a specific feature
@@ -16,10 +14,22 @@ class PermissionHandlerService {
       return false; // Permission denied, but not permanently
     } else if (status.isPermanentlyDenied) {
       // await openAppSettings(); // Open settings if permanently denied
-      permitionRequiredDialog(Get.context!);
+      locationAlwaysPermitionRequiredDialog(Get.context!);
       return false;
     }
     return false; // Default to false
+  }
+
+  Future<void> requestPermissions() async {
+    if (await Permission.location.isDenied ||
+        await Permission.locationWhenInUse.isDenied ||
+        await Permission.locationAlways.isDenied) {
+      await [
+        Permission.location,
+        Permission.locationAlways,
+        Permission.notification, // Needed for foreground service notification
+      ].request();
+    }
   }
 
   /// Check if permission is already granted
@@ -34,7 +44,15 @@ class PermissionHandlerService {
 
   /// Request location always permission
   Future<bool> requestLocationAlwaysPermission() async {
-    return await requestPermission(Permission.locationAlways);
+    final status = await Permission.locationAlways.request();
+
+    if (status.isGranted) {
+      return true; // Permission granted
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      locationAlwaysPermitionRequiredDialog(Get.context!);
+      return false;
+    }
+    return false; // Default to false
   }
 
   /// Request SMS permission
@@ -105,7 +123,16 @@ class PermissionHandlerService {
 
   /// Request notifications permission (for push notifications)
   Future<bool> requestNotificationPermission() async {
-    return await requestPermission(Permission.notification);
+    // return await requestPermission(Permission.notification);
+    final status = await Permission.notification.request();
+
+    if (status.isGranted) {
+      return true; // Permission granted
+    } else if (status.isPermanentlyDenied || status.isDenied) {
+      notificationPermitionRequiredDialog(Get.context!);
+      return false;
+    }
+    return false;
   }
 
   /// Request access to sensors
@@ -118,46 +145,100 @@ class PermissionHandlerService {
     return await requestPermission(Permission.audio);
   }
 
-  /// Request access to location (GPS, network, etc.)
-  permitionRequiredDialog(BuildContext context) {
+  notificationPermitionRequiredDialog(BuildContext context) {
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return PermissionRequiredDialog(
-          title: "Permission required",
-          content:
-              "It seems you permanently declined location permission. You can go to the app settings to grant it.",
-          onGrantPermission: () async {
-            await openAppSettings();
-            back();
-          },
-        );
-      },
-    );
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Permission Required"),
+            content: RichText(
+              text: const TextSpan(
+                text:
+                    "Notification permission is required to provide timely updates and alerts. "
+                    "Please enable it in the app settings by navigating to:\n\n",
+                style: TextStyle(
+                    color: Colors.black87, fontSize: 16), // Default style
+                children: [
+                  TextSpan(
+                    text: "Settings > App Permissions > Notifications\n\n",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text:
+                        "and allow notifications to ensure you receive important updates.",
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  // Redirect to app settings
+                  Navigator.of(context).pop();
+                  await openAppSettings();
+                },
+                child: const Text("Open Settings"),
+              ),
+            ],
+          );
+        });
   }
 
-  void showPermissionDialog(BuildContext context) {
+  locationAlwaysPermitionRequiredDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Permission Needed'),
-        content: Text(
-          'Location access is required to use this feature. Please enable location permissions in the app settings.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancel'),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Permission Required"),
+          content: RichText(
+            text: const TextSpan(
+              text:
+                  "Location permission is required to provide location-based services. "
+                  "Please enable it in the app settings by navigating to:\n\n",
+              style: TextStyle(
+                  color: Colors.black87, fontSize: 16), // Default style
+              children: [
+                TextSpan(
+                  text: "Settings > App Permissions > Location\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: "and select ",
+                ),
+                TextSpan(
+                  text: "\"Allow all the time\"",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: " for uninterrupted access to your location.",
+                ),
+              ],
+            ),
           ),
-          TextButton(
-            onPressed: () async {
-              await openAppSettings();
-              back();
-            },
-            child: Text('Open Settings'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Redirect to app settings
+                back();
+                await openAppSettings();
+              },
+              child: const Text("Open Settings"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:location_tracker/src/helpers/route.dart';
-import 'package:location_tracker/src/pages/main_page.dart';
-import 'package:permission_handler/permission_handler.dart';
-import '../helpers/klog.dart';
+import '../helpers/route.dart';
 import '/src/base/base.dart';
+import 'main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,16 +14,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
-    initPermition();
-
+    // initPermition();
+    Base.locationTrackerController.initServiceAndLocationPermission();
+    Base.locationTrackerController.enableBackgroundMode();
     super.initState();
 
     // initDB();
-  }
-
-  initPermition() async {
-    await Base.locationTrackerController.checkService();
-    await Base.permissionHandlerService.requestLocationAlwaysPermission();
   }
 
   @override
@@ -64,10 +58,11 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () async {
                   final status = await Base.locationTrackerController
                       .initServiceAndLocationPermission();
+                  final mode = await Base.locationTrackerController
+                      .checkBackgroundMode();
 
-                  if (status) {
-                    logSuccess('Service and permission granted');
-                    // offAll(MainPage());
+                  if (status && mode) {
+                    offAll(MainPage());
                   }
                 },
                 style: ElevatedButton.styleFrom(

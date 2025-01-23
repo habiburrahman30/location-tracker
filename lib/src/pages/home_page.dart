@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:location_tracker/src/helpers/klog.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 
 import '../base/base.dart';
@@ -25,36 +25,82 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Scan QR')),
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () async {},
-            child: Text('Scan QR'),
+      appBar: AppBar(title: Text('Start/Stop Location')),
+      body: Obx(
+        () => Center(
+          child: Column(
+            children: [
+              Column(
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      await Base.locationTrackerController
+                          .listenOnLocationChanged();
+                    },
+                    child: Text('Start With Stream'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await Base.locationTrackerController.stopListen();
+                    },
+                    child: Text('Stop With Stream'),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: Base.locationTrackerController.isListening1.value
+                        ? null
+                        : Base.locationTrackerController.listenLocation,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                        Base.locationTrackerController.isListening1.value
+                            ? Colors.grey.withValues(alpha: 0.5)
+                            : Colors.green,
+                      ),
+                    ),
+                    child: Text(
+                      'Start Work',
+                      style: TextStyle(
+                        color: Base.locationTrackerController.isListening1.value
+                            ? Colors.grey
+                            : Colors.white,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: Base.locationTrackerController.isListening1.value
+                        ? () {
+                            Base.locationTrackerController.latLngList1.clear();
+                            Base.locationTrackerController.stopListen();
+                          }
+                        : null,
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all<Color>(
+                        !Base.locationTrackerController.isListening1.value
+                            ? Colors.grey.withValues(alpha: 0.5)
+                            : Colors.redAccent,
+                      ),
+                    ),
+                    child: Text(
+                      'Stop Work',
+                      style: TextStyle(
+                        color:
+                            !Base.locationTrackerController.isListening1.value
+                                ? Colors.grey
+                                : Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Text('Scanned QR: '),
-                ElevatedButton(
-                  onPressed: () async {
-                    final kk = await Base.locationTrackerController
-                        .checkBackgroundMode();
-
-                    if (kk) {
-                      logSuccess('Background mode is enabled');
-                    } else {
-                      logError('Background mode is disabled');
-                      Base.locationTrackerController.initBackgroundMode();
-                    }
-                  },
-                  child: Text('Get Location'),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
