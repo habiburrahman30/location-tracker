@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
-
-import '../base/base.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,80 +23,41 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Start/Stop Location')),
-      body: Obx(
-        () => Center(
-          child: Column(
-            children: [
-              Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      await Base.locationTrackerController
-                          .listenOnLocationChanged();
-                    },
-                    child: Text('Start With Stream'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await Base.locationTrackerController.stopListen();
-                    },
-                    child: Text('Stop With Stream'),
-                  ),
-                ],
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {},
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  Colors.green,
+                ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: Base.locationTrackerController.isListening1.value
-                        ? null
-                        : Base.locationTrackerController.listenLocation,
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                        Base.locationTrackerController.isListening1.value
-                            ? Colors.grey.withValues(alpha: 0.5)
-                            : Colors.green,
-                      ),
-                    ),
-                    child: Text(
-                      'Start Work',
-                      style: TextStyle(
-                        color: Base.locationTrackerController.isListening1.value
-                            ? Colors.grey
-                            : Colors.white,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: Base.locationTrackerController.isListening1.value
-                        ? () {
-                            Base.locationTrackerController.latLngList1.clear();
-                            Base.locationTrackerController.stopListen();
-                          }
-                        : null,
-                    style: ButtonStyle(
-                      backgroundColor: WidgetStateProperty.all<Color>(
-                        !Base.locationTrackerController.isListening1.value
-                            ? Colors.grey.withValues(alpha: 0.5)
-                            : Colors.redAccent,
-                      ),
-                    ),
-                    child: Text(
-                      'Stop Work',
-                      style: TextStyle(
-                        color:
-                            !Base.locationTrackerController.isListening1.value
-                                ? Colors.grey
-                                : Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Start Work',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
               ),
-            ],
-          ),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {},
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.all<Color>(
+                  Colors.redAccent,
+                ),
+              ),
+              child: Text(
+                'Stop Work',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

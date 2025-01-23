@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../helpers/route.dart';
-import '/src/base/base.dart';
-import 'main_page.dart';
+import 'package:location_tracker/src/helpers/route.dart';
+import 'package:location_tracker/src/pages/main_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,15 +12,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   @override
-  void initState() {
-    // initPermition();
-    Base.locationTrackerController.initServiceAndLocationPermission();
-    Base.locationTrackerController.enableBackgroundMode();
-    super.initState();
-
-    // initDB();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,14 +46,7 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.symmetric(horizontal: 90),
               child: ElevatedButton(
                 onPressed: () async {
-                  final status = await Base.locationTrackerController
-                      .initServiceAndLocationPermission();
-                  final mode = await Base.locationTrackerController
-                      .checkBackgroundMode();
-
-                  if (status && mode) {
-                    offAll(MainPage());
-                  }
+                  offAll(MainPage());
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFF7643), // Button color

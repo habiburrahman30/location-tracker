@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:location_tracker/src/components/drawer_component.dart';
+import '/src/components/drawer_component.dart';
 
 import '../base/base.dart';
 import '../components/bottom_navigation_component.dart';
