@@ -14,16 +14,21 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
-    // initPermition();
-    Base.locationTrackerController.initServiceAndLocationPermission();
-    Base.locationTrackerController.enableBackgroundMode();
+    initPermition();
+
     super.initState();
 
     // initDB();
   }
 
+  initPermition() async {
+    await Base.locationTrackerController.initServiceAndLocationPermission();
+    await Base.locationTrackerController.enableBackgroundMode();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
@@ -53,15 +58,18 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 30),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 90),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.1),
               child: ElevatedButton(
                 onPressed: () async {
+                  await Base.locationTrackerController.enableBackgroundMode();
+
                   final status = await Base.locationTrackerController
                       .initServiceAndLocationPermission();
                   final mode = await Base.locationTrackerController
                       .checkBackgroundMode();
 
                   if (status && mode) {
+                    Base.locationTrackerController.getLocation();
                     offAll(MainPage());
                   }
                 },
@@ -77,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 child: Row(
                   spacing: 15,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SvgPicture.string(
                       googleIcon,

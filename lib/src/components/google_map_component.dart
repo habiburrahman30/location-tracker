@@ -23,35 +23,38 @@ class GoogleMapComponentState extends State<GoogleMapComponent> {
       () => Stack(
         children: [
           GoogleMap(
-            mapType: Base.locationTreceController.mapType.value,
+            mapType: MapType.normal,
             myLocationEnabled: true,
-            myLocationButtonEnabled: false,
-            initialCameraPosition: CameraPosition(
-              target:
-                  Base.locationTreceController.location.value.latitude != 0.0
-                      ? LatLng(
-                          Base.locationTreceController.location.value.latitude,
-                          Base.locationTreceController.location.value.longitude,
-                        )
-                      : LatLng(23.813275, 90.424384),
-              zoom: 18,
-            ),
+            // myLocationButtonEnabled: false,
+
+            // tiltGesturesEnabled: true,
+            // compassEnabled: true,
+            // scrollGesturesEnabled: true,
+            // zoomGesturesEnabled: true,
             zoomControlsEnabled: false,
+
+            initialCameraPosition: CameraPosition(
+              target: Base.locationTrackerController.currentLocation.value,
+              zoom: 17,
+            ),
+
             // cameraTargetBounds: CameraTargetBounds.unbounded,
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
+            onMapCreated: (controller) {
+              // _controller.complete(controller);
+              Base.locationTrackerController.mapController = controller;
             },
-            markers: {
-              userMarker,
-              riderMarker,
-            },
+
+            markers: Set<Marker>.of(Base.locationTrackerController.markerList),
+            // markers: markers,
+
+            onTap: (_) {},
           ),
           Positioned(
             right: 10,
             top: 10,
             child: IconButton(
               onPressed: () {
-                goCurrentLocation();
+                Base.locationTrackerController.getCurrentLocation();
               },
               style: ButtonStyle(
                 backgroundColor: WidgetStateProperty.all(Colors.white),
@@ -145,10 +148,11 @@ class GoogleMapComponentState extends State<GoogleMapComponent> {
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
-          target: Base.locationTreceController.location.value.latitude != 0.0
+          target: Base.locationTreceController.currentLocation.value.latitude !=
+                  0.0
               ? LatLng(
-                  Base.locationTreceController.location.value.latitude,
-                  Base.locationTreceController.location.value.longitude,
+                  Base.locationTreceController.currentLocation.value.latitude,
+                  Base.locationTreceController.currentLocation.value.longitude,
                 )
               : LatLng(23.813275, 90.424384),
           zoom: 18,

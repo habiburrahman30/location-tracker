@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
-
+import 'package:location_tracker/src/helpers/klog.dart';
+import 'package:location_tracker/src/helpers/route.dart';
+import 'package:intl/intl.dart';
 import '../base/base.dart';
+import 'map/directions_map_page.dart';
+import 'map_view_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,6 +33,18 @@ class _HomePageState extends State<HomePage> {
         () => Center(
           child: Column(
             children: [
+              ElevatedButton(
+                onPressed: () async {
+                  push(MapViewPage());
+                },
+                child: Text('Map View'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  push(DirectionsMapPage());
+                },
+                child: Text('Directions Map View'),
+              ),
               Column(
                 children: [
                   ElevatedButton(
@@ -75,8 +90,9 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                     onPressed: Base.locationTrackerController.isListening1.value
                         ? () {
-                            Base.locationTrackerController.latLngList1.clear();
                             Base.locationTrackerController.stopListen();
+                            Base.locationTrackerController.latLngList1.clear();
+                            Base.locationTrackerController.markerList.clear();
                           }
                         : null,
                     style: ButtonStyle(
@@ -101,100 +117,6 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class LocationServiceDialog extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      contentPadding: const EdgeInsets.all(20),
-      content: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 60), // Space for the floating icon
-              // Title
-              const Text(
-                "Turn on Location Service",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 10),
-
-              // Content text
-              const Text(
-                "Explore the world without getting lost and keep track of your location.",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-
-              // Buttons
-              Column(
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close dialog
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text(
-                      "Enable Location",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      "Later",
-                      style: TextStyle(color: Colors.purple),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Positioned(
-            top: -70, // Position the icon above the dialog
-            left: 0,
-            right: 0,
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.purple[100],
-              // child: Icon(
-              //   Icons.location_on_rounded,
-              //   size: 40,
-              //   color: Colors.purple,
-              // ),
-              child: Lottie.asset(
-                'assets/location.json',
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

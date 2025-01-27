@@ -14,7 +14,7 @@ class LocationTreceController extends GetxController {
 
   final userAddress = RxString('');
 
-  final location = Rx<LatLng>(LatLng(0.0, 0.0));
+  final currentLocation = Rx<LatLng>(LatLng(23.7808405, 90.419689));
   final googleMapController = Completer<GoogleMapController>();
   final mapType = Rx<MapType>(MapType.normal);
 
@@ -22,24 +22,12 @@ class LocationTreceController extends GetxController {
   final locationList = RxList<LatLng>();
 
   @override
-  void onInit() {
-    // TODO: implement onInit
-    super.onInit();
-  }
-
-  @override
   void onReady() async {
     if (await Base.permissionHandlerService
         .isPermissionGranted(Permission.location)) {
-      await getAddressFromLatLng();
+      logInfo('LocationTreceController is ready.');
     }
     super.onReady();
-  }
-
-  @override
-  void onClose() {
-    // TODO: implement onClose
-    super.onClose();
   }
 
   Future<void> getAddressFromLatLng() async {
@@ -50,7 +38,7 @@ class LocationTreceController extends GetxController {
     );
 
     //Add the current location to the location variable
-    location.value = LatLng(position.latitude, position.longitude);
+    currentLocation.value = LatLng(position.latitude, position.longitude);
 
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
@@ -80,8 +68,8 @@ class LocationTreceController extends GetxController {
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
-          target: location.value,
-          zoom: 14,
+          target: currentLocation.value,
+          zoom: 17,
         ),
       ),
     );

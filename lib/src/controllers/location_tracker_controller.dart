@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
-import 'package:geocoding/geocoding.dart' show placemarkFromCoordinates;
+import 'dart:math';
+import 'package:geolocator/geolocator.dart' as go;
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:location_tracker/src/helpers/klog.dart';
 import 'package:permission_handler/permission_handler.dart' as handler;
@@ -10,16 +11,36 @@ import 'package:permission_handler/permission_handler.dart' as handler;
 import '../base/base.dart';
 
 class LocationTrackerController extends GetxController {
+  late GoogleMapController mapController;
+  final currentLocation = Rx<LatLng>(LatLng(23.7808405, 90.419689));
+
   Location location = Location();
+
   late LocationData locationData;
   StreamSubscription<LocationData>? locationSubscription;
+
+  final showCustomInfoWindow = RxBool(false);
+  final infoWindowTopOffset = RxDouble(0.0);
 
   // late bool serviceEnabled;
   // late PermissionStatus permissionGranted;
   final isListening = RxBool(false);
   final isListening1 = RxBool(false);
+
   final latLngList1 = RxList<LatLng>();
   final latLngList = RxList<LatLng>();
+
+  final markerList = RxList<Marker>();
+
+  @override
+  void onReady() async {
+    if (await Base.permissionHandlerService
+        .isPermissionGranted(handler.Permission.location)) {
+      logInfo('LocationTreceController is ready.');
+      await getLocation();
+    }
+    super.onReady();
+  }
 
   Future<bool> checkService() async {
     var status = await location.serviceEnabled();
@@ -86,12 +107,13 @@ class LocationTrackerController extends GetxController {
   }
 
   Future<void> getLocation() async {
-    try {
-      final locationResult = await location.getLocation();
-      klog(locationResult);
-    } on PlatformException catch (err) {
-      klog(err.toString());
-    }
+    final position = await go.Geolocator.getCurrentPosition(
+      locationSettings: go.LocationSettings(
+        accuracy: go.LocationAccuracy.high,
+      ),
+    );
+    currentLocation.value = LatLng(position.latitude, position.longitude);
+    logSuccess('Current location: $currentLocation');
   }
 
   Future<void> listenLocation() async {
@@ -107,23 +129,80 @@ class LocationTrackerController extends GetxController {
     //   locationData = currentLocation;
     // });
     isListening1.value = true;
-    locationSubscription =
-        location.onLocationChanged.listen((currentLocation) async {
+
+    LatLng? latLng = LatLng(0.0, 0.0);
+
+    locationSubscription = location.onLocationChanged.listen((data) async {
       try {
-        if (currentLocation.latitude != null &&
-            currentLocation.longitude != null) {
-          // Get address from coordinates
-          final placemarks = await placemarkFromCoordinates(
-            currentLocation.latitude!,
-            currentLocation.longitude!,
+        if (data.latitude != null && data.longitude != null) {
+          final distance = calculateDistance(
+            latLng!.latitude,
+            latLng!.longitude,
+            data.latitude!,
+            data.longitude!,
           );
-          latLngList1.add(
-              LatLng(currentLocation.latitude!, currentLocation.longitude!));
-          if (placemarks.isNotEmpty) {
-            final place = placemarks.first;
-            String address =
-                "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
-            logSuccess('Address: $address');
+
+          if (latLng!.latitude == 0.0 || distance > 100) {
+            // Update only if distance is greater than 100 meters
+            logSuccess('Current location: $currentLocation');
+
+            locationData = data;
+            currentLocation.value = LatLng(data.latitude!, data.longitude!);
+
+            latLng = LatLng(data.latitude!, data.longitude!);
+            latLngList1.add(LatLng(data.latitude!, data.longitude!));
+
+            // Get address from coordinates
+            // final placemarks = await placemarkFromCoordinates(
+            //   currentLocation.latitude!,
+            //   currentLocation.longitude!,
+            // );
+
+            // if (placemarks.isNotEmpty) {
+            //   final place = placemarks.first;
+            //   address =
+            //       "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+            //   logSuccess('Address: $address');
+            // }
+
+            // Add marker to the map
+            markerList.add(
+              Marker(
+                markerId: MarkerId('current_location_${markerList.length}'),
+                position: LatLng(data.latitude!, data.longitude!),
+                infoWindow: InfoWindow(
+                  title: 'Location 📍',
+                  snippet:
+                      "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm a').format(DateTime.now())}",
+                  onTap: () {},
+                ),
+                onTap: () {},
+              ),
+            );
+
+            //Update first and last marker icon
+            if (markerList.isNotEmpty && markerList.length > 2) {
+              // Update first marker
+              markerList[0] = markerList[0].copyWith(
+                iconParam: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueGreen),
+              );
+
+              // Update last marker
+              markerList[markerList.length - 1] =
+                  markerList[markerList.length - 1].copyWith(
+                iconParam: BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueBlue),
+              );
+
+              // Update all other markers without first and last
+              for (int i = 1; i < markerList.length - 1; i++) {
+                markerList[i] = markerList[i].copyWith(
+                  iconParam: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueRed),
+                );
+              }
+            }
           }
         }
       } catch (e) {
@@ -134,6 +213,28 @@ class LocationTrackerController extends GetxController {
       locationSubscription?.cancel();
       locationSubscription = null;
     });
+  }
+
+  /// Calculates the distance in meters between two coordinates
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const double earthRadius = 6371000; // Radius of Earth in meters
+
+    double dLat = _toRadians(lat2 - lat1);
+    double dLon = _toRadians(lon2 - lon1);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_toRadians(lat1)) *
+            cos(_toRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    return earthRadius * c; // Distance in meters
+  }
+
+  /// Converts degrees to radians
+  double _toRadians(double degree) {
+    return degree * pi / 180;
   }
 
   listenOnLocationChanged() {
@@ -159,7 +260,7 @@ class LocationTrackerController extends GetxController {
 
   //Change the settings of the location
   changeSettings({
-    LocationAccuracy? accuracy,
+    dynamic accuracy,
     int? interval,
     double? distanceFilter,
   }) {
@@ -183,5 +284,24 @@ class LocationTrackerController extends GetxController {
       iconName: iconName,
       onTapBringToFront: true,
     );
+  }
+
+  //Get the last known location
+  Future<void> getCurrentLocation() async {
+    final position = await go.Geolocator.getCurrentPosition(
+      locationSettings: go.LocationSettings(
+        accuracy: go.LocationAccuracy.high,
+      ),
+    );
+    if (position != null) {
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(position.latitude, position.longitude),
+            zoom: 17,
+          ),
+        ),
+      );
+    }
   }
 }

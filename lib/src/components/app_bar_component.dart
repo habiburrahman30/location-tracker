@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -34,17 +33,18 @@ class AppBarComponent extends StatelessWidget
                   .openDrawer(),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: CachedNetworkImage(
-                  fit: BoxFit.cover,
-                  imageUrl:
-                      "https://plus.unsplash.com/premium_photo-1689539137236-b68e436248de?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-                  progressIndicatorBuilder: (context, url, downloadProgress) =>
-                      CircularProgressIndicator(
-                    value: downloadProgress.progress,
-                    color: Colors.white,
-                  ),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                ),
+                // child: CachedNetworkImage(
+                //   fit: BoxFit.cover,
+                //   imageUrl:
+                //       "https://plus.unsplash.com/premium_photo-1689539137236-b68e436248de?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                //   progressIndicatorBuilder: (context, url, downloadProgress) =>
+                //       CircularProgressIndicator(
+                //     value: downloadProgress.progress,
+                //     color: Colors.white,
+                //   ),
+                //   errorWidget: (context, url, error) => Icon(Icons.error),
+                // ),
+                child: FlutterLogo(),
               ),
             ),
           ),
