@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:location_tracker/src/helpers/klog.dart';
 
 import 'model/directions_model.dart';
@@ -263,7 +264,11 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
         Marker(
           markerId: MarkerId('origin'),
           position: latLng,
-          infoWindow: InfoWindow(title: 'Origin'),
+          infoWindow: InfoWindow(
+            title: 'Origin 📍',
+            snippet:
+                "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
+          ),
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
         ),
@@ -274,7 +279,11 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
         Marker(
           markerId: MarkerId('destination'),
           position: latLng,
-          infoWindow: InfoWindow(title: 'Destination'),
+          infoWindow: InfoWindow(
+            title: 'Destination 📍',
+            snippet:
+                "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
+          ),
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         ),
       );

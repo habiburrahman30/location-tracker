@@ -19,24 +19,7 @@ class _LocationListenerState extends State<LocationListener> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(height: 20),
-            Base.locationTrackerController.latLngList1.isNotEmpty
-                ? ListView.builder(
-                    shrinkWrap: true,
-                    primary: false,
-                    itemCount:
-                        Base.locationTrackerController.latLngList1.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text(
-                          'Lat: ${Base.locationTrackerController.latLngList1[index].latitude}',
-                        ),
-                        subtitle: Text(
-                          'Lng: ${Base.locationTrackerController.latLngList1[index].longitude}',
-                        ),
-                      );
-                    },
-                  )
-                : Text('No location data'),
+
             Base.locationTrackerController.latLngList.isNotEmpty
                 ? ListView.builder(
                     shrinkWrap: true,

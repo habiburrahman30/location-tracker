@@ -113,7 +113,7 @@ class _MapViewPageState extends State<MapViewPage> {
       });
       await _getAddress();
     }).catchError((e) {
-      print(e);
+      klog(e);
     });
   }
 
@@ -132,7 +132,7 @@ class _MapViewPageState extends State<MapViewPage> {
         _startAddress = _currentAddress;
       });
     } catch (e) {
-      print(e);
+      klog(e);
     }
   }
 

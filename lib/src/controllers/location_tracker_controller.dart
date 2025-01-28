@@ -25,9 +25,7 @@ class LocationTrackerController extends GetxController {
   // late bool serviceEnabled;
   // late PermissionStatus permissionGranted;
   final isListening = RxBool(false);
-  final isListening1 = RxBool(false);
 
-  final latLngList1 = RxList<LatLng>();
   final latLngList = RxList<LatLng>();
 
   final markerList = RxList<Marker>();
@@ -125,7 +123,7 @@ class LocationTrackerController extends GetxController {
   Future<void> startWork() async {
     changeNotificationOptions();
 
-    isListening1.value = true;
+    isListening.value = true;
 
     LatLng? latLng = LatLng(0.0, 0.0);
 
@@ -147,7 +145,7 @@ class LocationTrackerController extends GetxController {
             locationData = data;
 
             latLng = LatLng(data.latitude!, data.longitude!);
-            latLngList1.add(LatLng(data.latitude!, data.longitude!));
+            latLngList.add(LatLng(data.latitude!, data.longitude!));
 
             // Get address from coordinates
             // final placemarks = await placemarkFromCoordinates(
@@ -170,7 +168,7 @@ class LocationTrackerController extends GetxController {
                 infoWindow: InfoWindow(
                   title: 'Location 📍',
                   snippet:
-                      "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm a').format(DateTime.now())}",
+                      "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
                   onTap: () {},
                 ),
                 onTap: () {},
@@ -236,7 +234,6 @@ class LocationTrackerController extends GetxController {
 
   Future<void> stopListen() async {
     isListening.value = false;
-    isListening1.value = false;
     await locationSubscription?.cancel();
     locationSubscription = null;
   }
