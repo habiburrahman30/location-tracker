@@ -23,7 +23,7 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
 
   Set<Marker> originMarker = {};
   Set<Marker> destinationMarker = {};
-  late Directions? _info;
+  late Directions? info;
   @override
   void initState() {
     Future.delayed(Duration(milliseconds: 100), () async {
@@ -293,7 +293,7 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
         destination: destinationMarker.first.position,
       );
       setState(() {
-        _info = directions;
+        info = directions;
       });
     }
     // if (_origin == null || (_origin != null && _destination != null)) {
