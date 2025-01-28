@@ -23,7 +23,7 @@ class GoogleMapComponentState extends State<GoogleMapComponent> {
       () => Stack(
         children: [
           GoogleMap(
-            mapType: MapType.normal,
+            mapType: Base.locationTrackerController.mapType.value,
             myLocationEnabled: true,
             // myLocationButtonEnabled: false,
 
@@ -40,7 +40,6 @@ class GoogleMapComponentState extends State<GoogleMapComponent> {
 
             // cameraTargetBounds: CameraTargetBounds.unbounded,
             onMapCreated: (controller) {
-              // _controller.complete(controller);
               Base.locationTrackerController.mapController = controller;
             },
 
@@ -100,19 +99,19 @@ class GoogleMapComponentState extends State<GoogleMapComponent> {
                   if (value != null) {
                     switch (value) {
                       case 0:
-                        Base.locationTreceController.mapType.value =
+                        Base.locationTrackerController.mapType.value =
                             MapType.normal;
                         break;
                       case 1:
-                        Base.locationTreceController.mapType.value =
+                        Base.locationTrackerController.mapType.value =
                             MapType.satellite;
                         break;
                       case 2:
-                        Base.locationTreceController.mapType.value =
+                        Base.locationTrackerController.mapType.value =
                             MapType.hybrid;
                         break;
                       default:
-                        Base.locationTreceController.mapType.value =
+                        Base.locationTrackerController.mapType.value =
                             MapType.normal;
                     }
                   }

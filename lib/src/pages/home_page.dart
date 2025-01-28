@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:location_tracker/src/helpers/klog.dart';
 import 'package:location_tracker/src/helpers/route.dart';
-import 'package:intl/intl.dart';
 import '../base/base.dart';
 import 'map/directions_map_page.dart';
 import 'map_view_page.dart';
@@ -48,10 +46,7 @@ class _HomePageState extends State<HomePage> {
               Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () async {
-                      await Base.locationTrackerController
-                          .listenOnLocationChanged();
-                    },
+                    onPressed: () async {},
                     child: Text('Start With Stream'),
                   ),
                   ElevatedButton(
@@ -69,7 +64,7 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                     onPressed: Base.locationTrackerController.isListening1.value
                         ? null
-                        : Base.locationTrackerController.listenLocation,
+                        : Base.locationTrackerController.startWork,
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(
                         Base.locationTrackerController.isListening1.value

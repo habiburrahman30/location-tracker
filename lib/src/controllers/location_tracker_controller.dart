@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:geolocator/geolocator.dart' as go;
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -11,7 +10,8 @@ import 'package:permission_handler/permission_handler.dart' as handler;
 import '../base/base.dart';
 
 class LocationTrackerController extends GetxController {
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
+  final mapType = Rx<MapType>(MapType.normal);
   final currentLocation = Rx<LatLng>(LatLng(23.7808405, 90.419689));
 
   Location location = Location();
@@ -31,16 +31,6 @@ class LocationTrackerController extends GetxController {
   final latLngList = RxList<LatLng>();
 
   final markerList = RxList<Marker>();
-
-  @override
-  void onReady() async {
-    if (await Base.permissionHandlerService
-        .isPermissionGranted(handler.Permission.location)) {
-      logInfo('LocationTreceController is ready.');
-      await getLocation();
-    }
-    super.onReady();
-  }
 
   Future<bool> checkService() async {
     var status = await location.serviceEnabled();
@@ -106,28 +96,35 @@ class LocationTrackerController extends GetxController {
     return await location.isBackgroundModeEnabled();
   }
 
-  Future<void> getLocation() async {
-    final position = await go.Geolocator.getCurrentPosition(
-      locationSettings: go.LocationSettings(
-        accuracy: go.LocationAccuracy.high,
-      ),
-    );
-    currentLocation.value = LatLng(position.latitude, position.longitude);
-    logSuccess('Current location: $currentLocation');
+  Future<void> fetchLocationUpdates() async {
+    location.onLocationChanged.listen((currentPosition) {
+      if (currentPosition.latitude != null &&
+          currentPosition.longitude != null) {
+        currentLocation.value = LatLng(
+          currentPosition.latitude!,
+          currentPosition.longitude!,
+        );
+        logSuccess('Current location::: $currentLocation');
+
+        mapController?.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: currentLocation.value,
+              zoom: 17,
+            ),
+          ),
+        );
+        //  mapController?.animateCamera(CameraUpdate.newLatLng(location));
+      }
+    });
   }
 
-  Future<void> listenLocation() async {
+  //-------------------------------------
+  // **** Start working with locationn stream ****
+  //-------------------------------------
+  Future<void> startWork() async {
     changeNotificationOptions();
-    // locationSubscription =
-    //     location.onLocationChanged.handleError((dynamic err) {
-    //   if (err is PlatformException) klog(err.code);
 
-    //   locationSubscription?.cancel();
-    //   locationSubscription = null;
-    // }).listen((currentLocation) {
-    //   logSuccess(currentLocation);
-    //   locationData = currentLocation;
-    // });
     isListening1.value = true;
 
     LatLng? latLng = LatLng(0.0, 0.0);
@@ -144,10 +141,10 @@ class LocationTrackerController extends GetxController {
 
           if (latLng!.latitude == 0.0 || distance > 100) {
             // Update only if distance is greater than 100 meters
-            logSuccess('Current location: $currentLocation');
+
+            logSuccess('Listening Working location: $currentLocation');
 
             locationData = data;
-            currentLocation.value = LatLng(data.latitude!, data.longitude!);
 
             latLng = LatLng(data.latitude!, data.longitude!);
             latLngList1.add(LatLng(data.latitude!, data.longitude!));
@@ -237,20 +234,6 @@ class LocationTrackerController extends GetxController {
     return degree * pi / 180;
   }
 
-  listenOnLocationChanged() {
-    locationSubscription =
-        location.onLocationChanged.listen((LocationData currentLocation) {
-      logSuccess(currentLocation);
-      isListening.value = true;
-      if (currentLocation.latitude != null &&
-          currentLocation.longitude != null) {
-        locationData = currentLocation;
-        latLngList
-            .add(LatLng(currentLocation.latitude!, currentLocation.longitude!));
-      }
-    });
-  }
-
   Future<void> stopListen() async {
     isListening.value = false;
     isListening1.value = false;
@@ -288,20 +271,13 @@ class LocationTrackerController extends GetxController {
 
   //Get the last known location
   Future<void> getCurrentLocation() async {
-    final position = await go.Geolocator.getCurrentPosition(
-      locationSettings: go.LocationSettings(
-        accuracy: go.LocationAccuracy.high,
+    mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: currentLocation.value,
+          zoom: 17,
+        ),
       ),
     );
-    if (position != null) {
-      mapController.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(position.latitude, position.longitude),
-            zoom: 17,
-          ),
-        ),
-      );
-    }
   }
 }

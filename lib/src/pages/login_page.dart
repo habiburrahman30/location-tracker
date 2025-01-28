@@ -69,7 +69,6 @@ class _LoginPageState extends State<LoginPage> {
                       .checkBackgroundMode();
 
                   if (status && mode) {
-                    Base.locationTrackerController.getLocation();
                     offAll(MainPage());
                   }
                 },

@@ -10,13 +10,12 @@ import '../base/base.dart';
 import '../helpers/klog.dart';
 
 class LocationTreceController extends GetxController {
-  StreamSubscription<Position>? positionStream;
-
-  final userAddress = RxString('');
-
   final currentLocation = Rx<LatLng>(LatLng(23.7808405, 90.419689));
   final googleMapController = Completer<GoogleMapController>();
   final mapType = Rx<MapType>(MapType.normal);
+
+  StreamSubscription<Position>? positionStream;
+  final userAddress = RxString('');
 
   //
   final locationList = RxList<LatLng>();
