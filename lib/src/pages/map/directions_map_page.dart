@@ -1,3 +1,5 @@
+import 'package:clippy_flutter/triangle.dart';
+import 'package:custom_info_window/custom_info_window.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,6 +15,7 @@ class DirectionsMapPage extends StatefulWidget {
 }
 
 class _DirectionsMapPageState extends State<DirectionsMapPage> {
+  final customInfoWindowController = CustomInfoWindowController();
   static const _initialCameraPosition = CameraPosition(
     target: LatLng(37.773972, -122.431297),
     zoom: 11.5,
@@ -36,6 +39,7 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
   @override
   void dispose() {
     _googleMapController.dispose();
+    customInfoWindowController.dispose();
     super.dispose();
   }
 
@@ -133,7 +137,14 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
             myLocationEnabled: true,
             zoomControlsEnabled: false,
             initialCameraPosition: _initialCameraPosition,
-            onMapCreated: (controller) => _googleMapController = controller,
+            // onMapCreated: (controller) => _googleMapController = controller,
+            onCameraMove: (position) {
+              customInfoWindowController.onCameraMove!();
+            },
+            onMapCreated: (GoogleMapController controller) async {
+              _googleMapController = controller;
+              customInfoWindowController.googleMapController = controller;
+            },
             markers: {
               ...originMarker,
               ...destinationMarker,
@@ -154,9 +165,15 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
             },
             onTap: (argument) {
               klog(argument);
+              customInfoWindowController.hideInfoWindow!();
             },
           ),
-
+          CustomInfoWindow(
+            controller: customInfoWindowController,
+            height: 150,
+            width: 250,
+            offset: 50,
+          ),
           Positioned(
             top: 20,
             right: 10,
@@ -174,6 +191,7 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
                   onTap: () {
                     originMarker.clear();
                     destinationMarker.clear();
+                    customInfoWindowController.hideInfoWindow!();
                     setState(() {});
                   },
                 ),
@@ -264,13 +282,19 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
         Marker(
           markerId: MarkerId('origin'),
           position: latLng,
-          infoWindow: InfoWindow(
-            title: 'Origin 📍',
-            snippet:
-                "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
-          ),
+          // infoWindow: InfoWindow(
+          //   title: 'Origin 📍',
+          //   snippet:
+          //       "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
+          // ),
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          onTap: () {
+            customInfoWindowController.addInfoWindow!(
+              infoWindowComponent(latLng),
+              latLng,
+            );
+          },
         ),
       );
     } else if (destinationMarker.isEmpty || destinationMarker.isNotEmpty) {
@@ -279,12 +303,18 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
         Marker(
           markerId: MarkerId('destination'),
           position: latLng,
-          infoWindow: InfoWindow(
-            title: 'Destination 📍',
-            snippet:
-                "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
-          ),
+          // infoWindow: InfoWindow(
+          //   title: 'Destination 📍',
+          //   snippet:
+          //       "🕓 ${DateFormat('dd MMM, yyyy -> hh:mm:ss a').format(DateTime.now())}",
+          // ),
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+          onTap: () {
+            customInfoWindowController.addInfoWindow!(
+              infoWindowComponent(latLng),
+              latLng,
+            );
+          },
         ),
       );
 
@@ -331,5 +361,103 @@ class _DirectionsMapPageState extends State<DirectionsMapPage> {
     //   );
     //   setState(() => _info = directions);
     // }
+  }
+
+  Column infoWindowComponent(LatLng latLng) {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            padding: EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.watch_later_outlined,
+                      color: Colors.blue,
+                      size: 30,
+                    ),
+                    SizedBox(width: 8.0),
+                    Text(
+                      DateFormat('dd MMM, yyyy -> hh:mm:ss a')
+                          .format(DateTime.now()),
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    )
+                  ],
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.pin_drop_sharp,
+                        color: Colors.blue,
+                        size: 30,
+                      ),
+                      SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          "${latLng.latitude}, ${latLng.longitude}",
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.business_center_outlined,
+                        color: Colors.blue,
+                        size: 30,
+                      ),
+                      SizedBox(width: 8.0),
+                      Expanded(
+                        child: Text(
+                          "Badda, Post office road, Dhaka - 1212",
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Triangle.isosceles(
+          edge: Edge.BOTTOM,
+          child: Container(
+            color: Colors.white,
+            width: 20.0,
+            height: 10.0,
+          ),
+        ),
+      ],
+    );
   }
 }

@@ -15,6 +15,7 @@ class BottomNavigationComponent extends StatelessWidget {
           Base.navigationController.currentIndex.value = index;
         },
         selectedItemColor: Color(0xFF00BF6D),
+        type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
@@ -27,6 +28,10 @@ class BottomNavigationComponent extends StatelessWidget {
           BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded),
             label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Notification',
           ),
         ],
       ),

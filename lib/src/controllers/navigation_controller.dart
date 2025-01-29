@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:location_tracker/src/pages/map_page.dart';
 
 import '../pages/home_page.dart';
+import '../pages/local_notification_page.dart';
 import '../pages/location_listener_page.dart';
 
 class NavigationController extends GetxController {
@@ -21,6 +22,8 @@ class NavigationController extends GetxController {
         return MapPage();
       case 2:
         return LocationListener();
+      case 3:
+        return LocalNotificationPage();
       default:
         return Center(child: Text('page 3'));
     }

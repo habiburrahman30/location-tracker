@@ -104,14 +104,6 @@ class LocationTrackerController extends GetxController {
         );
         logSuccess('Current location::: $currentLocation');
 
-        mapController?.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: currentLocation.value,
-              zoom: 17,
-            ),
-          ),
-        );
         //  mapController?.animateCamera(CameraUpdate.newLatLng(location));
       }
     });
@@ -197,6 +189,34 @@ class LocationTrackerController extends GetxController {
                       BitmapDescriptor.hueRed),
                 );
               }
+            }
+            if (markerList.length == 1) {
+              // Update the map camera position
+              mapController?.animateCamera(
+                CameraUpdate.newCameraPosition(
+                  CameraPosition(
+                    target: LatLng(data.latitude!, data.longitude!),
+                    zoom: 17,
+                  ),
+                ),
+              );
+            } else {
+              // Update the map camera bounds
+              mapController?.animateCamera(
+                CameraUpdate.newLatLngBounds(
+                  LatLngBounds(
+                    southwest: LatLng(
+                      markerList.first.position.latitude,
+                      markerList.first.position.longitude,
+                    ),
+                    northeast: LatLng(
+                      markerList.last.position.latitude,
+                      markerList.last.position.longitude,
+                    ),
+                  ),
+                  100.0,
+                ),
+              );
             }
           }
         }
