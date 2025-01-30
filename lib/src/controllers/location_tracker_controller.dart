@@ -10,6 +10,12 @@ import 'package:permission_handler/permission_handler.dart' as handler;
 import '../base/base.dart';
 
 class LocationTrackerController extends GetxController {
+  //Location section
+  Location location = Location();
+  late LocationData locationData;
+  StreamSubscription<LocationData>? locationSubscription;
+
+  // Google map section
   GoogleMapController? mapController;
   final mapType = Rx<MapType>(MapType.normal);
   final currentLocation = Rx<LatLng>(LatLng(23.7808405, 90.419689));
@@ -21,20 +27,10 @@ class LocationTrackerController extends GetxController {
     zoom: 17.0,
   ));
 
-  Location location = Location();
+  final isBackgroundModeEnabled = RxBool(false);
 
-  late LocationData locationData;
-  StreamSubscription<LocationData>? locationSubscription;
-
-  final showCustomInfoWindow = RxBool(false);
-  final infoWindowTopOffset = RxDouble(0.0);
-
-  // late bool serviceEnabled;
-  // late PermissionStatus permissionGranted;
   final isListening = RxBool(false);
-
   final latLngList = RxList<LatLng>();
-
   final markerList = RxList<Marker>();
 
   Future<bool> checkService() async {
@@ -47,7 +43,36 @@ class LocationTrackerController extends GetxController {
     }
   }
 
-  Future<bool> initServiceAndLocationPermission() async {
+  //init location listener
+  Future<bool> initLocationListener({required bool isListening}) async {
+    try {
+      logError('Failed to enable background mode');
+      // Ensure location permissions are granted
+      if (!await initServiceAndLocationPermission(isListening: isListening)) {
+        logError('Location permissions denied');
+        return false;
+      }
+
+      // Ensure background mode is enabled
+      if (isListening) {
+        if (!await location.isBackgroundModeEnabled()) {
+          if (!await location.enableBackgroundMode()) {
+            logError('Failed to enable background mode');
+            return false;
+          }
+        }
+      }
+
+      logSuccess('Background mode and permissions granted');
+      return true;
+    } on Exception catch (e) {
+      logError('Error in background mode and permissions: $e');
+      return false;
+    }
+  }
+
+  Future<bool> initServiceAndLocationPermission(
+      {required bool isListening}) async {
     try {
       // Check if location services are enabled
       bool isServiceEnabled = await location.serviceEnabled();
@@ -60,12 +85,18 @@ class LocationTrackerController extends GetxController {
         }
       }
 
+      // // Request location permission (Always)
+      // final locationPermission =
+      //     await handler.Permission.locationAlways.request();
+      // if (!locationPermission.isGranted) {
+      //   logError('Location permission (Always) denied');
+      //   await Base.permissionHandlerService.requestLocationAlwaysPermission();
+      //   return false;
+      // }
+
       // Request location permission (Always)
-      final locationPermission =
-          await handler.Permission.locationAlways.request();
-      if (!locationPermission.isGranted) {
+      if (!await requestLocationPermission(isListening: isListening)) {
         logError('Location permission (Always) denied');
-        await Base.permissionHandlerService.requestLocationAlwaysPermission();
         return false;
       }
 
@@ -87,32 +118,75 @@ class LocationTrackerController extends GetxController {
     }
   }
 
-  Future<void> enableBackgroundMode() async {
-    if (await location.hasPermission() == PermissionStatus.granted &&
-        await location.serviceEnabled()) {
-      logSuccess('Background mode enabled');
-      await location.enableBackgroundMode(enable: true);
-    } else {
-      logError('Permissions not granted or location service not enabled.');
+  Future<bool> requestLocationPermission({required bool isListening}) async {
+    try {
+      final permission = isListening
+          ? await handler.Permission.locationAlways.request()
+          : await handler.Permission.location.request();
+
+      if (permission.isGranted) {
+        logSuccess(
+            'Location permission granted (${isListening ? 'Always' : 'When in use'})');
+        return true;
+      }
+
+      logError(
+          'Location permission (${isListening ? 'Always' : 'When in use'}) denied');
+
+      // Request again based on permission type
+      if (isListening) {
+        await Base.permissionHandlerService.requestLocationAlwaysPermission();
+      } else {
+        await Base.permissionHandlerService.requestLocationPermission();
+      }
+
+      return false;
+    } catch (e) {
+      logError('Error requesting location permission: $e');
+      return false;
     }
   }
 
+  Future<void> checkBackgroundStatus() async {
+    bool enabled = await toggleBackgroundMode();
+
+    isBackgroundModeEnabled.value = enabled;
+  }
+
+  //Toggle background mode
+  Future<bool> toggleBackgroundMode() async {
+    try {
+      bool isBackgroundEnabled = await location.isBackgroundModeEnabled();
+
+      if (await requestLocationPermission(isListening: true)) {
+        bool newState = !isBackgroundEnabled; // Toggle state
+        await location.enableBackgroundMode(enable: newState);
+
+        logSuccess('Background mode ${newState ? "enabled" : "disabled"}');
+        return newState;
+      } else {
+        logError('Permissions not granted or location service not enabled.');
+        return false;
+      }
+    } catch (e) {
+      logError('Error toggling background mode: $e');
+      return false;
+    }
+  }
+
+  //Check background mode is enabled or not
   Future<bool> checkBackgroundMode() async {
     return await location.isBackgroundModeEnabled();
   }
 
+  // Fatch current location
   Future<void> fetchLocationUpdates() async {
-    location.onLocationChanged.listen((currentPosition) {
-      if (currentPosition.latitude != null &&
-          currentPosition.longitude != null) {
-        currentLocation.value = LatLng(
-          currentPosition.latitude!,
-          currentPosition.longitude!,
-        );
-        logSuccess('Current location::: $currentLocation');
-
-        //  mapController?.animateCamera(CameraUpdate.newLatLng(location));
-      }
+    location.getLocation().then((value) {
+      logSuccess('Location: $value');
+      currentLocation.value = LatLng(
+        value.latitude!,
+        value.longitude!,
+      );
     });
   }
 

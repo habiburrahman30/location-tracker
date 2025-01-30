@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:timezone/data/latest.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 
 import '../components/notification_action_button.dart';

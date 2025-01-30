@@ -14,7 +14,7 @@ class PermissionHandlerService {
       return false; // Permission denied, but not permanently
     } else if (status.isPermanentlyDenied) {
       // await openAppSettings(); // Open settings if permanently denied
-      locationAlwaysPermitionRequiredDialog(Get.context!);
+      locationPermitionRequiredDialog(Get.context!);
       return false;
     }
     return false; // Default to false
@@ -213,6 +213,58 @@ class PermissionHandlerService {
                 ),
                 TextSpan(
                   text: "\"Allow all the time\"",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: " for uninterrupted access to your location.",
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Redirect to app settings
+                back();
+                await openAppSettings();
+              },
+              child: const Text("Open Settings"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  locationPermitionRequiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Permission Required"),
+          content: RichText(
+            text: const TextSpan(
+              text:
+                  "Location permission is required to provide location-based services. "
+                  "Please enable it in the app settings by navigating to:\n\n",
+              style: TextStyle(
+                  color: Colors.black87, fontSize: 16), // Default style
+              children: [
+                TextSpan(
+                  text: "Settings > App Permissions > Location\n\n",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: "and select ",
+                ),
+                TextSpan(
+                  text: "\"Allow only while using the app\"",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(

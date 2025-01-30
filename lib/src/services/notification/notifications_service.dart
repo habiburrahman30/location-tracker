@@ -137,7 +137,7 @@ class NotificationsServices {
   }) async {
     final androidNotificationDetails = AndroidNotificationDetails(
       'channelId 0',
-      'channelName',
+      'Channel Name 0',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
@@ -177,7 +177,7 @@ class NotificationsServices {
   }) async {
     final androidNotificationDetails = const AndroidNotificationDetails(
       'channelId 1',
-      'channelName 1',
+      'Channel Name 1',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
@@ -248,7 +248,7 @@ class NotificationsServices {
 
     final androidNotificationDetails = AndroidNotificationDetails(
       'channelId 2',
-      'channelName',
+      'Channel Name 2',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
@@ -280,7 +280,7 @@ class NotificationsServices {
   }) async {
     final androidNotificationDetails = const AndroidNotificationDetails(
       'channelId 3',
-      'channelName',
+      'Channel Name 3',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
@@ -315,7 +315,7 @@ class NotificationsServices {
 
     final androidNotificationDetails = const AndroidNotificationDetails(
       'channelId 4',
-      'channelName',
+      'Channel Name 4',
       channelDescription: 'your channel description',
       importance: Importance.max,
       priority: Priority.high,
@@ -351,5 +351,6 @@ class NotificationsServices {
   // close all the notifications available
   Future cancelAll() async {
     await flutterLocalNotificationsPlugin.cancelAll();
+    logSuccess('All notifications are canceled');
   }
 }

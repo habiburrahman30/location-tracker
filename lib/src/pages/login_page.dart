@@ -22,8 +22,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   initPermition() async {
-    await Base.locationTrackerController.initServiceAndLocationPermission();
-    await Base.locationTrackerController.enableBackgroundMode();
+    await Base.locationTrackerController
+        .initLocationListener(isListening: true);
   }
 
   @override
@@ -61,14 +61,8 @@ class _LoginPageState extends State<LoginPage> {
               padding: EdgeInsets.symmetric(horizontal: width * 0.1),
               child: ElevatedButton(
                 onPressed: () async {
-                  await Base.locationTrackerController.enableBackgroundMode();
-
-                  final status = await Base.locationTrackerController
-                      .initServiceAndLocationPermission();
-                  final mode = await Base.locationTrackerController
-                      .checkBackgroundMode();
-
-                  if (status && mode) {
+                  if (await Base.locationTrackerController
+                      .initLocationListener(isListening: true)) {
                     offAll(MainPage());
                   }
                 },
