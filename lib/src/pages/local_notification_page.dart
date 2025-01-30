@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../components/notification_action_button.dart';
-import '../services/notifications_service.dart';
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../components/notification_action_button.dart';
+import '../services/notification/notifications_service.dart';
+
 class LocalNotificationPage extends StatefulWidget {
+  const LocalNotificationPage({super.key});
+
   @override
   State<LocalNotificationPage> createState() => _LocalNotificationPageState();
 }
@@ -14,7 +18,7 @@ class _LocalNotificationPageState extends State<LocalNotificationPage> {
 
   @override
   void initState() {
-    service.initializeNotification();
+    requestExactAlarmPermission();
     super.initState();
   }
 
@@ -22,6 +26,13 @@ class _LocalNotificationPageState extends State<LocalNotificationPage> {
     if (await Permission.scheduleExactAlarm.isDenied) {
       openAppSettings(); // Opens settings to manually enable permission
     }
+    service.initializeNotification();
+  }
+
+  @override
+  void dispose() {
+    service.cancelAll();
+    super.dispose();
   }
 
   @override

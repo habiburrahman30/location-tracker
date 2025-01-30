@@ -2,9 +2,13 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:location_tracker/src/helpers/klog.dart';
+import 'package:location_tracker/src/helpers/route.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:rxdart/rxdart.dart';
+
+import '../../pages/map/map_view_page.dart';
 
 class NotificationsServices {
   /// A notification action which triggers a url launch event
@@ -27,10 +31,12 @@ class NotificationsServices {
   // On tap on any notification
   static void onNotificationTap(NotificationResponse notificationResponse) {
     onClickNotification.add(notificationResponse.payload!);
-  }
 
-  final androidInitializationSettings =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+    if ("This is payload" == notificationResponse.payload) {
+      logSuccess(onClickNotification.value);
+      push(MapViewPage());
+    }
+  }
 
   static final darwinNotificationCategories = <DarwinNotificationCategory>[
     DarwinNotificationCategory(
@@ -76,6 +82,11 @@ class NotificationsServices {
     )
   ];
 
+  // Android initialization settings
+  final androidInitializationSettings =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  //iOS initialization settings
   final darwinInitializationSettings = DarwinInitializationSettings(
     requestAlertPermission: false,
     requestBadgePermission: false,
@@ -83,6 +94,8 @@ class NotificationsServices {
     notificationCategories: darwinNotificationCategories,
     // onDidReceiveLocalNotification: (int id, String? title, String? body, String? payload) async {},
   );
+
+  //Linux initialization settings
   final linuxInitializationSettings = LinuxInitializationSettings(
     defaultActionName: 'Open notification',
     defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
@@ -92,6 +105,7 @@ class NotificationsServices {
     final initializationSettings = InitializationSettings(
       android: androidInitializationSettings,
       iOS: darwinInitializationSettings,
+      macOS: darwinInitializationSettings,
       linux: linuxInitializationSettings,
     );
 
@@ -319,12 +333,13 @@ class NotificationsServices {
       4,
       title,
       body,
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 2)),
       notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.alarmClock,
+      payload: payload,
+      androidScheduleMode: AndroidScheduleMode.exact,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload,
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
     );
   }
 

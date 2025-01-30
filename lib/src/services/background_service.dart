@@ -58,12 +58,12 @@ class BackgroundService extends GetxService {
     if (service is AndroidServiceInstance) {
       service.on("setAsForeground").listen((event) {
         service.setAsForegroundService();
-        klog("background process is now stopped");
+        klog("setAsForegroundService");
       });
 
       service.on("setAsBackground").listen((event) {
         service.setAsBackgroundService();
-        klog("background process is now stopped");
+        klog("setAsBackground");
       });
     }
 

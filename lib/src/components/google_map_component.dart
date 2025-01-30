@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:location_tracker/src/helpers/klog.dart';
 
 import '../base/base.dart';
 
@@ -42,7 +43,11 @@ class GoogleMapComponentState extends State<GoogleMapComponent> {
             onMapCreated: (controller) {
               Base.locationTrackerController.mapController = controller;
             },
-
+            onCameraMove: (cameraPosition) {
+              logSuccess('MAPPP MOVEEE:: $cameraPosition');
+              Base.locationTrackerController.initialCameraPosition.value =
+                  cameraPosition;
+            },
             markers: Set<Marker>.of(Base.locationTrackerController.markerList),
             // markers: markers,
 

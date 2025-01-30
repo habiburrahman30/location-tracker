@@ -14,6 +14,13 @@ class LocationTrackerController extends GetxController {
   final mapType = Rx<MapType>(MapType.normal);
   final currentLocation = Rx<LatLng>(LatLng(23.7808405, 90.419689));
 
+  final initialCameraPosition = Rx<CameraPosition>(CameraPosition(
+    bearing: 0.0,
+    target: LatLng(23.7808405, 90.419689),
+    tilt: 0.0,
+    zoom: 17.0,
+  ));
+
   Location location = Location();
 
   late LocationData locationData;
