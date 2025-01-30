@@ -50,7 +50,12 @@ class _HomePageState extends State<HomePage> {
                   ElevatedButton(
                     onPressed: Base.locationTrackerController.isListening.value
                         ? null
-                        : Base.locationTrackerController.startWork,
+                        : () async {
+                            if (await Base.locationTrackerController
+                                .initLocationListener(isListening: true)) {
+                              Base.locationTrackerController.startWork();
+                            }
+                          },
                     style: ButtonStyle(
                       backgroundColor: WidgetStateProperty.all<Color>(
                         Base.locationTrackerController.isListening.value

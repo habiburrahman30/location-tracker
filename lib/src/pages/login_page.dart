@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
 
   initPermition() async {
     await Base.locationTrackerController
-        .initLocationListener(isListening: true);
+        .initLocationListener(isListening: false);
   }
 
   @override
@@ -62,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
               child: ElevatedButton(
                 onPressed: () async {
                   if (await Base.locationTrackerController
-                      .initLocationListener(isListening: true)) {
+                      .initLocationListener(isListening: false)) {
                     offAll(MainPage());
                   }
                 },
