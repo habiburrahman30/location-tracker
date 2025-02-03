@@ -185,6 +185,7 @@ class NotificationsServices {
       // icon: 'logo',
       // channelShowBadge: true,
       // largeIcon: DrawableResourceAndroidBitmap('logo'),
+
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           'dismiss',
@@ -320,6 +321,7 @@ class NotificationsServices {
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
+      // fullScreenIntent: true,
     );
 
     final darwinNotificationDetails = const DarwinNotificationDetails();

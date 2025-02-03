@@ -33,6 +33,10 @@ class BottomNavigationComponent extends StatelessWidget {
             icon: Icon(Icons.notifications),
             label: 'Notification',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.timer_outlined),
+            label: 'Timer',
+          ),
         ],
       ),
     );

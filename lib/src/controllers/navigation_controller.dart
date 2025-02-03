@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:location_tracker/src/pages/map_page.dart';
+import 'package:location_tracker/src/pages/timer_screen.dart';
 
 import '../pages/home_page.dart';
 import '../pages/local_notification_page.dart';
@@ -24,6 +25,8 @@ class NavigationController extends GetxController {
         return LocationListener();
       case 3:
         return LocalNotificationPage();
+      case 4:
+        return TimerScreen();
       default:
         return Center(child: Text('page 3'));
     }
