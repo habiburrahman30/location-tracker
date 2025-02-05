@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:location_tracker/src/helpers/route.dart';
 import 'package:location_tracker/src/pages/attendance_page.dart';
 import '../base/base.dart';
+import 'alarm/alarm_page.dart';
 import 'map/directions_map_page.dart';
 import 'map/map_view_page.dart';
 
@@ -150,6 +151,24 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ],
+                  ),
+                ],
+              ),
+              Divider(),
+              Column(
+                children: [
+                  Text(
+                    'Alarm',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      push(AlarmPage());
+                    },
+                    child: Text('Set Alarm'),
                   ),
                 ],
               ),

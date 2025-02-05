@@ -501,6 +501,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                             Icon(Icons.access_time,
                                                 color: Colors.blue),
                                             Text(
+                                              // ignore: unnecessary_null_comparison
                                               data != null
                                                   ? "${data['startTime']}"
                                                   : "--:--",
@@ -527,6 +528,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                             Icon(Icons.update,
                                                 color: Colors.blue),
                                             Text(
+                                              // ignore: unnecessary_null_comparison
                                               data != null
                                                   ? "${data['remainingTime']}"
                                                   : "--:--",
